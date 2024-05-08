@@ -63,8 +63,8 @@ def Server():
 				p = executor.submit(ProcessTheClient, connection, client_address)
 				the_clients.append(p)
 				#menampilkan jumlah process yang sedang aktif
-				jumlah = ['x' for i in the_clients if i.running()==True]
-				print(jumlah)
+				#jumlah = ['x' for i in the_clients if i.running()==True]
+				#print(jumlah)
 
 
 
