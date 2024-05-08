@@ -17,7 +17,9 @@ httpserver = HttpServer()
 
 def ProcessTheClient(connection,address):
 	# Buat secure connection
-	connection = ssl.wrap_socket(connection, './certs/domain.key', './certs/domain.crt', True)
+	context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+	context.load_cert_chain(certfile='./certs/domain.crt', keyfile='./certs/domain.key')
+	connection = context.wrap_socket(connection, server_side=True)
 
 	rcv=""
 
@@ -39,7 +41,6 @@ def ProcessTheClient(connection,address):
 					#logging.warning("balas ke  client: {}" . format(hasil))
 					#hasil sudah dalam bentuk bytes
 					connection.sendall(hasil)
-					print('done sending')
 					rcv=""
 					connection.close()
 					return
