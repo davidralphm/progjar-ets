@@ -7,9 +7,6 @@ import sys
 import logging
 import ssl
 
-
-
-
 from http import HttpServer
 
 httpserver = HttpServer()

@@ -1,13 +1,14 @@
+import os
 from socket import *
 import socket
+import multiprocessing
 import time
 import sys
 import logging
-import multiprocessing
 from concurrent.futures import ProcessPoolExecutor
-from http import HttpServer
-import os
 import ssl
+
+from http import HttpServer
 
 httpserver = HttpServer()
 
@@ -34,6 +35,7 @@ def ProcessTheClient(connection,address):
 						#logging.warning("balas ke  client: {}" . format(hasil))
 						#hasil sudah dalam bentuk bytes
 						connection.sendall(hasil)
+						print('done sending')
 						rcv=""
 						connection.close()
 						return
@@ -52,8 +54,7 @@ def Server():
 #------------------------------
 	cert_location = os.getcwd() + '/certs/'
 	context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-	context.load_cert_chain(certfile=cert_location + 'domain.crt',
-								 keyfile=cert_location + 'domain.key')
+	context.load_cert_chain(certfile=cert_location + 'domain.crt', keyfile=cert_location + 'domain.key')
 #---------------------------------
 
 	my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,14 +65,17 @@ def Server():
 
 	with ProcessPoolExecutor(20) as executor:
 		while True:
-				connection, client_address = my_socket.accept()
+			connection, client_address = my_socket.accept()
+			try:
 				secure_connection = context.wrap_socket(connection, server_side=True)
 				#logging.warning("connection from {}".format(client_address))
 				p = executor.submit(ProcessTheClient, secure_connection, client_address)
 				the_clients.append(p)
-				#menampilkan jumlah process yang sedang aktif
-				#jumlah = ['x' for i in the_clients if i.running()==True]
-				#print(jumlah)
+			except ssl.SSLError as essl:
+				print(str(essl))
+			#menampilkan jumlah process yang sedang aktif
+			#jumlah = ['x' for i in the_clients if i.running()==True]
+			#print(jumlah)
 
 
 
